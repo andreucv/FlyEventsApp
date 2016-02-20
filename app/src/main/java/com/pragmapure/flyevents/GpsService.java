@@ -25,6 +25,8 @@ public class GpsService extends Service {
     public GpsService() {
     }
 
+    public final IBinder mBinder = new LocalBinder();
+
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -69,8 +71,7 @@ public class GpsService extends Service {
         // 0 time in milliseconds between changes and 0 distance in meters between change
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return mBinder;
     }
 
     public class LocalBinder extends Binder {
