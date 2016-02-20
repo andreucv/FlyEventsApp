@@ -69,7 +69,7 @@ public class HttpConnection {
 
         try {
             MultipartUtility multipart = new MultipartUtility(setUpConnection(Constants.SERVER_URL, "POST"), charset);
-            ArrayList<String> keys = (ArrayList) params.keySet();
+            String[] keys = params.keySet().toArray(new String[0]);
             for(String n: keys) {
                 multipart.addFormField(n, params.get(n));
             }
@@ -85,9 +85,6 @@ public class HttpConnection {
     public JSONObject makePostText(String url, HashMap<String, String> params){
         String charset = "UTF-8";
         JSONObject response = null;
-        HttpURLConnection connection = setUpConnection(url, "POST");
-        connection.setDoOutput(true);
-
         try{
             MultipartUtility multipart = new MultipartUtility(setUpConnection(url, "POST"), charset);
             String[] keys = params.keySet().toArray(new String[0]);

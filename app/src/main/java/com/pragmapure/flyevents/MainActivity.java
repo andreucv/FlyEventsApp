@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     boolean mBound = false;
     private static final String TAG = "MAIN";
     ProgressDialog progress;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +54,13 @@ public class MainActivity extends AppCompatActivity {
         final EditText mailreg = (EditText)findViewById(R.id.emailRegister);
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         progress = new ProgressDialog(this);
-
+        prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
 
 
         progress.setTitle(getString(R.string.loadigpdtitle));
         progress.setMessage(getString(R.string.loadingpd));
+
+        final MainActivity me = this;
 
         breg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,12 +70,11 @@ public class MainActivity extends AppCompatActivity {
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 if (snamereg.trim().length() > 0 && isEmailValid(smailreg)) {
                     breg.setEnabled(false);
-                    SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
                     HashMap<String, String> data = new HashMap<String, String>();
                     data.put("name", snamereg);
                     data.put("email", smailreg);
                     data.put("imei", prefs.getString(Constants.IMEI_KEY, ""));
-                    new LoginTask().execute(data);
+                    new LoginTask(me).execute(data);
 
                 } else if(!isEmailValid(smailreg)) {
                     Snackbar.make(view, "The mail hasn't a valid format", Snackbar.LENGTH_LONG)
@@ -139,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAll() {
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId()).apply();
 
         Intent intent = new Intent(this, GpsService.class);
@@ -219,17 +220,36 @@ public class MainActivity extends AppCompatActivity {
 
     private class LoginTask extends AsyncTask<HashMap<String, String>, Void, Boolean> {
 
+
+        MainActivity parent;
+
+        public  LoginTask(MainActivity m) {
+            parent = m;
+        }
+
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            progress.hide();
+            if (result) {
+                progress.hide();
+                prefs.edit().putBoolean(Constants.REGISTERED_KEY, true).apply();
+                Intent i = new Intent(parent, webActivity.class);
+                startActivity(i);
+            } else {
+                progress.hide();
+            }
         }
 
 
         @Override
         protected Boolean doInBackground(HashMap<String, String>... params) {
-            HttpConnection req = new HttpConnection();
-            JSONObject resp = req.makePostText(Constants.SERVER_URL + "api/users/", params[0]);
-            return true;
+            HttpConnection req = new HttpConnection(Constants.USERS_URL);
+            JSONObject resp = req.makePostText(params[0]);
+            try {
+               String id = resp.getString("id");
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         @Override
