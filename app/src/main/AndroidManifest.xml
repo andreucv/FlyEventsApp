@@ -48,7 +48,8 @@
         <activity
             android:name=".webActivity"
             android:label="@string/title_activity_web"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

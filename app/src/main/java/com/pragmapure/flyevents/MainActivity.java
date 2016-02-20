@@ -1,6 +1,7 @@
 package com.pragmapure.flyevents;
 
 import android.Manifest;
+import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -189,8 +190,9 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            GpsService.LocalBinder binder = (GpsService.LocalBinder) service;
-            mService = binder.getService();
+            mService = ((GpsService.LocalBinder) service).getService();
+            Intent intent = new Intent(getApplicationContext(), GpsService.class);
+            mService.startService(intent);
             mBound = true;
         }
 
