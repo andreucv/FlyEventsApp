@@ -31,7 +31,34 @@ public class GpsService extends Service {
 
     @Override
     public void onCreate(){
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        Log.d(TAG, "SERVICIO EN MARCHA");
 
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.d(TAG, "" + location.getLatitude());
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+                sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
+                sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
+                Log.d(TAG, "1");
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                Log.d(TAG, "2");
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Log.d(TAG, "3");
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Log.d(TAG, "4");
+            }
+        };
     }
 
     @Override
@@ -61,36 +88,6 @@ public class GpsService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        Log.d(TAG, "SERVICIO EN MARCHA");
-
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.d(TAG, "" + location.getLatitude());
-                SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-                sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
-                sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
-                Log.d(TAG, "1");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                Log.d(TAG, "2");
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Log.d(TAG, "3");
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Log.d(TAG, "4");
-            }
-        };
-
         return mBinder;
     }
 
