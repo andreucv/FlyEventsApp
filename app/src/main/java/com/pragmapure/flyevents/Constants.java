@@ -15,16 +15,18 @@ public final class Constants {
     public static final String REGISTERED_KEY = "regkey";
     public static final String GPS_LAT_KEY = "gpslat";
     public static final String GPS_LONG_KEY = "gpslong";
+    public static final String EVENT_KEY = "eventk";
 
     public static final int PERMISSIONS_QUERY = 5;
 
 
 
-    public static final long minTime = 0;
+    public static final long minTime = 5000;
     public static final float minDistance = 0;
     /*SERVER*/
 
     public static final String SERVER_URL = "http://37.139.6.22/";
     public static final String CREATE_USER = SERVER_URL + "api/users/";
+    public static final String SEARCH_EVENTS = SERVER_URL + "api/events/search/";
 
 }
