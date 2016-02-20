@@ -29,6 +29,7 @@ public class GpsService extends Service {
     public IBinder onBind(Intent intent) {
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        Log.d(TAG, "SERVICIO EN MARCHA");
 
         LocationListener locationListener = new LocationListener() {
             @Override
