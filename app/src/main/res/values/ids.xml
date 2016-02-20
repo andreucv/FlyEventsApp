@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="nameRegister" type="id">namereg</item>
+    <item name="emailRegister" type="id">emailreg</item>
+    <item name="buttonRegister" type="id">buttonreg</item>
+</resources>
