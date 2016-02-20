@@ -2,18 +2,26 @@ package com.pragmapure.flyevents;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.GpsSatellite;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 public class GpsService extends Service {
+
+    private static final String TAG = "GpsServiceFlyEvents";
     public GpsService() {
     }
 
@@ -25,7 +33,9 @@ public class GpsService extends Service {
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+                sharedPreferences.edit().putFloat(Constants.GPS_LAT_KEY, (float) location.getLatitude());
+                sharedPreferences.edit().putFloat(Constants.GPS_LONG_KEY, (float) location.getLongitude());
             }
 
             @Override
@@ -52,8 +62,10 @@ public class GpsService extends Service {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return TODO;
+            Log.e(TAG, "Error in checkSelfPermission");
+            // TODO THE HANDLER
         }
+        // 0 time in milliseconds between changes and 0 distance in meters between change
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         // TODO: Return the communication channel to the service.
