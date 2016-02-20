@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     UploadService mServiceUpload;
     boolean mBoundUpload = false;
 
+    FileService mServiceFile;
+    boolean mBoundFile = false;
+
     private static final String TAG = "MAIN";
     ProgressDialog progress;
     SharedPreferences prefs;
@@ -158,6 +161,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intentUpload = new Intent(this, UploadService.class);
         bindService(intentUpload, mConnectionUpload, Context.BIND_AUTO_CREATE);
 
+        Intent intentFile = new Intent(this, FileService.class);
+        bindService(intentFile, mConnectionFile, Context.BIND_AUTO_CREATE);
+
         Boolean isRegistered = prefs.getBoolean(Constants.REGISTERED_KEY, false);
 
         if (isRegistered) {
@@ -229,6 +235,24 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private ServiceConnection mConnectionFile = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            mServiceFile = ((FileService.LocalBinder) service).getService();
+            Intent intent = new Intent(getApplicationContext(), FileService.class);
+            mServiceFile.startService(intent);
+            mBoundFile = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBoundFile = false;
+            mServiceFile.stopSelf();
+        }
+    };
 
     public boolean isEmailValid(String email)
     {
