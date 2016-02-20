@@ -6,4 +6,6 @@
     <string name="email">Email</string>
     <string name="enter">Enter</string>
     <string name="registerstr">Please register</string>
+    <string name="loadingpd">Wait while loading...</string>
+    <string name="loadigpdtitle">Loading</string>
 </resources>
