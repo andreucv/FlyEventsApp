@@ -16,6 +16,8 @@ public final class Constants {
     public static final String GPS_LAT_KEY = "gpslat";
     public static final String GPS_LONG_KEY = "gpslong";
     public static final String EVENT_KEY = "eventk";
+    public static final String EVENTS_FOUND_KEY = "eventsfound";
+    public static final String EVENTS_NOTIFICATION = "eventsfound";
     public static final String DATEON_KEY = "dateon";
     public static final String DATEOFF_KEY = "dateoff";
     public static final String DATE_FORMAT_SERVER = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -31,6 +33,7 @@ public final class Constants {
     public static final String SERVER_URL = "http://37.139.6.22/";
     public static final String CREATE_USER = SERVER_URL + "api/users/";
     public static final String SEARCH_EVENTS = SERVER_URL + "api/events/search/";
-    public static final String UPLOAD_URL = SERVER_URL + "api/photo/";
+    public static final String UPLOAD_URL = SERVER_URL + "api/photos/";
+    public static final String WEB_EVENTS_URL = SERVER_URL + "events/";
 
 }

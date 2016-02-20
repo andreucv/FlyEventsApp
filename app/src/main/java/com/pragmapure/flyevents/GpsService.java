@@ -1,7 +1,10 @@
 package com.pragmapure.flyevents;
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +17,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -32,9 +36,11 @@ public class GpsService extends Service {
     LocationManager locationManager;
     LocationListener locationListener;
     SharedPreferences sharedPreferences;
+    Context c;
 
     @Override
     public void onCreate(){
+        c = this;
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         Log.d(TAG, "onCreate in Service");
         sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
@@ -123,7 +129,7 @@ public class GpsService extends Service {
 
         @Override
         protected JSONObject doInBackground(Location... params) {
-            boolean hasEvent = true;
+            boolean hasEvent = false;
             int idevent = 1;
             if (hasEvent) {
                 sharedPreferences.edit().putString(Constants.EVENT_KEY, ""+idevent).apply();
@@ -135,13 +141,32 @@ public class GpsService extends Service {
 
         @Override
         protected void onPostExecute(JSONObject ev) {
-            locationManager.removeUpdates(locationListener);
             if (ev != null) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.minTime, Constants.minDistance, locationListener);
                 sharedPreferences.edit().remove(Constants.EVENT_KEY).apply();
                 try {
                     JSONArray events = ev.getJSONArray("events");
-                    if (events.length()>0) {
+                    if (events.length()>0 && !sharedPreferences.getBoolean(Constants.EVENTS_FOUND_KEY, false)) {
+                        sharedPreferences.edit().putBoolean(Constants.EVENTS_FOUND_KEY, true).apply();
+                        sharedPreferences.edit().putBoolean(Constants.EVENTS_NOTIFICATION, true).apply();
+                        NotificationCompat.Builder mBuilder =
+                                new NotificationCompat.Builder(c)
+                                        .setSmallIcon(R.drawable.bullseye)
+                                        .setContentTitle("New Events")
+                                        .setContentText("There are events near of you");
+                        Intent resultIntent = new Intent(c, webActivity.class);
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(c);
+                        stackBuilder.addParentStack(webActivity.class);
+                        stackBuilder.addNextIntent(resultIntent);
+                        PendingIntent resultPendingIntent =
+                                stackBuilder.getPendingIntent(
+                                        0,
+                                        PendingIntent.FLAG_UPDATE_CURRENT
+                                );
+                        mBuilder.setContentIntent(resultPendingIntent);
+                        NotificationManager mNotificationManager =
+                                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.notify(1, mBuilder.build());
+
                         Log.d(TAG, "HAY EVENTOS");
                     } else {
                         Log.d(TAG, "NO HAY EVENTOS");

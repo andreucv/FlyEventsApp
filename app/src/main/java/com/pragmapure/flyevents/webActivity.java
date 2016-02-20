@@ -26,8 +26,12 @@ public class webActivity extends AppCompatActivity {
         String lat = prefs.getString(Constants.GPS_LAT_KEY, null);
         String longi = prefs.getString(Constants.GPS_LONG_KEY, null);
 
-
-        myWebView.loadUrl(Constants.SERVER_URL);
+        String url = Constants.SERVER_URL;
+        if (prefs.getBoolean(Constants.EVENTS_NOTIFICATION, false)) {
+            prefs.edit().putBoolean(Constants.EVENTS_NOTIFICATION, false).apply();
+            url = Constants.WEB_EVENTS_URL+"?imei="+imei+"&latitude="+lat+"&longitude="+longi;
+        }
+        myWebView.loadUrl(url);
     }
 
 }
