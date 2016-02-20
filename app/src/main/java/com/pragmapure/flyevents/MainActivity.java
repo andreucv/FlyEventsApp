@@ -2,18 +2,20 @@ package com.pragmapure.flyevents;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import com.pragmapure.flyevents.Constants;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +25,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId());
+        prefs.edit().apply();
+        Boolean isRegistered = prefs.getBoolean(Constants.REGISTERED_KEY, false);
+
+        if (isRegistered) {
+            Intent i = new Intent(this, webActivity.class);
+            startActivity(i);
+            return;
+        }
+
+
         final Button breg = (Button) findViewById(R.id.buttonRegister);
         final EditText namereg = (EditText)findViewById(R.id.nameRegister);
         final EditText mailreg = (EditText)findViewById(R.id.emailRegister);
@@ -30,13 +46,9 @@ public class MainActivity extends AppCompatActivity {
         final ProgressDialog progress = new ProgressDialog(this);
 
 
-        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-
 
         progress.setTitle(getString(R.string.loadigpdtitle));
         progress.setMessage(getString(R.string.loadingpd));
-
-
 
         breg.setOnClickListener(new View.OnClickListener() {
             @Override
