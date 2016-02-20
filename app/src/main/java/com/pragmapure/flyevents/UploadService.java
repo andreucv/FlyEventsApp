@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -27,21 +28,25 @@ public class UploadService extends Service {
     private static final String TAG = "UploadService";
     public final IBinder mBinder = new LocalBinder();
 
+    ConnectivityManager connectivityManager;
+    NetworkInfo wifiConnected;
+
+    Handler handler;
+
     public UploadService() {}
 
     @Override
     public void onCreate() {
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        wifiConnected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        handler = new Handler();
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo wifiConnected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
         if(wifiConnected.isConnected()){
-            Log.d(TAG, "empezando servicio UPLOAD");
-            new UploadServerTask().execute();
+            handler.post(runnableCode);
         }
 
         return START_STICKY;
@@ -78,14 +83,11 @@ public class UploadService extends Service {
         }
     }
 
-
-    private class UploadServerTask extends AsyncTask<Void, Void, JSONObject> {
-
-
+    private Runnable runnableCode = new Runnable() {
         @Override
-        protected JSONObject doInBackground(Void... params) {
+        public void run() {
             uploadPhoto();
-            return null;
+            handler.postDelayed(runnableCode, Constants.minTime);
         }
-    }
+    };
 }
