@@ -27,13 +27,42 @@ public class GpsService extends Service {
 
     public final IBinder mBinder = new LocalBinder();
 
+
+    LocationManager locationManager;
+    LocationListener locationListener;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            Log.e(TAG, "Error in checkSelfPermission");
+            // TODO THE HANDLER
+        }
+        // 0 time in milliseconds between changes and 0 distance in meters between change
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.minTime, Constants.minDistance, locationListener);
+
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, ""+location.getLatitude()).apply();
+        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, ""+location.getLongitude()).apply();
+
+        Log.d(TAG, "" + sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
+        return START_STICKY;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
 
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         Log.d(TAG, "SERVICIO EN MARCHA");
 
-        LocationListener locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 Log.d(TAG, "" + location.getLatitude());
@@ -58,28 +87,6 @@ public class GpsService extends Service {
                 Log.d(TAG, "4");
             }
         };
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Log.e(TAG, "Error in checkSelfPermission");
-            // TODO THE HANDLER
-        }
-        // 0 time in milliseconds between changes and 0 distance in meters between change
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.minTime, Constants.minDistance, locationListener);
-
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, ""+location.getLatitude()).apply();
-        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, ""+location.getLongitude()).apply();
-
-        Log.d(TAG, ""+sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
-
 
         return mBinder;
     }
