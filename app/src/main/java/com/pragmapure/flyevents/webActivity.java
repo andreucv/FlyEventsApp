@@ -28,7 +28,6 @@ public class webActivity extends AppCompatActivity {
         Float lat = prefs.getFloat(Constants.GPS_LAT_KEY, 0.0f);
         Float longi = prefs.getFloat(Constants.GPS_LONG_KEY, 0.0f);
 
-
         myWebView.loadUrl(Constants.SERVER_URL);
     }
 
