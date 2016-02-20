@@ -58,12 +58,13 @@ public class UploadService extends Service {
     }
 
     public boolean uploadPhoto(){
-        Log.d(TAG, "Uploading a photo");
+
         HashMap<String, String> params = null;
         JSONObject response = null;
         // Search file in ORM
         List<Photo> listToUpload = Photo.find(Photo.class, "uploaded = ?", "false");
         if(!listToUpload.isEmpty()){
+            Log.d(TAG, "Uploading a photo");
             Photo photoToUpload = listToUpload.get(0);
             SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
             params = new HashMap<>();

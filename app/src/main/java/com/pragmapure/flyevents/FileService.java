@@ -43,18 +43,21 @@ public class FileService extends Service {
             // Then we're going to schedule an upload
             for(String photoPath: photosPath){
                 Log.d(TAG, "PhotoPath of foto processed now: " + photoPath);
-                File photoToSchedule = new File(photoPath);
-                Date pictureDate = parseLong(photoToSchedule.lastModified());
-                Log.d(TAG, "Date of the picture: "+pictureDate.toString());
-                if(!pictureDate.before(dateOn) && !pictureDate.after(dateOff)){
-                    // Add to the Photos Records
-                    List<Photo> result = Photo.find(Photo.class, "filename = ?", photoPath);
-                    if(result.isEmpty()){
-                        Log.d(TAG, "We have saved the foto");
-                        Photo photo = new Photo(eventId, photoPath);
-                        photo.save();
+                File photoToSchedule = new File(pathCamera+"/"+photoPath);
+                if (!photoToSchedule.isDirectory()) {
+                    Date pictureDate = parseLong(photoToSchedule.lastModified());
+                    Log.d(TAG, "Date of the picture: "+pictureDate.toString());
+                    if(!pictureDate.before(dateOn) && !pictureDate.after(dateOff)){
+                        // Add to the Photos Records
+                        List<Photo> result = Photo.find(Photo.class, "filename = ?", pathCamera+"/"+photoPath);
+                        if(result.isEmpty()){
+                            Log.d(TAG, "We have saved the foto");
+                            Photo photo = new Photo(eventId, pathCamera+"/"+photoPath);
+                            photo.save();
+                        }
                     }
                 }
+
             }
         }
         return START_STICKY;
