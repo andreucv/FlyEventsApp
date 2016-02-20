@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -56,12 +58,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String snamereg = namereg.getText().toString();
                 String smailreg = mailreg.getText().toString();
-
-                if (snamereg.trim().length() > 0 && smailreg.trim().length() > 0) {
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                if (snamereg.trim().length() > 0 && isEmailValid(smailreg)) {
                     breg.setEnabled(false);
                     progress.show();
 
+                } else if(!isEmailValid(smailreg)) {
+                    Snackbar.make(view, "The mail hasn't a valid format", Snackbar.LENGTH_LONG)
+                            .show();
                 } else {
                     Snackbar.make(view, "There is any empty field", Snackbar.LENGTH_LONG)
                             .show();
@@ -128,6 +132,9 @@ public class MainActivity extends AppCompatActivity {
         prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId());
         prefs.edit().apply();
 
+        Intent intent = new Intent(this, GpsService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
         Boolean isRegistered = prefs.getBoolean(Constants.REGISTERED_KEY, false);
 
         if (isRegistered) {
@@ -137,8 +144,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Bind to LocalService
-        Intent intent = new Intent(this, GpsService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
     }
 
 
@@ -178,6 +184,28 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
+
+
+    public boolean isEmailValid(String email)
+    {
+        String regExpn =
+                "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"
+                        +"((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                        +"[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
+                        +"([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                        +"[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+                        +"([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$";
+
+        CharSequence inputStr = email;
+
+        Pattern pattern = Pattern.compile(regExpn,Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(inputStr);
+
+        if(matcher.matches())
+            return true;
+        else
+            return false;
+    }
 
 
 }
