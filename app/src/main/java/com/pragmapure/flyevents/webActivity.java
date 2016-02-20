@@ -25,8 +25,8 @@ public class webActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         String imei = prefs.getString(Constants.IMEI_KEY, null);
-        Float lat = prefs.getFloat(Constants.GPS_LAT_KEY, 0.0f);
-        Float longi = prefs.getFloat(Constants.GPS_LONG_KEY, 0.0f);
+        String lat = prefs.getString(Constants.GPS_LAT_KEY, null);
+        String longi = prefs.getString(Constants.GPS_LONG_KEY, null);
 
 
         myWebView.loadUrl(Constants.SERVER_URL);
