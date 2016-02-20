@@ -129,6 +129,12 @@ public class MainActivity extends AppCompatActivity {
             perms.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            perms.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
        if (perms.size()>0) {
            ActivityCompat.requestPermissions(this, perms.toArray(new String[0]), Constants.PERMISSIONS_QUERY);
        } else {
