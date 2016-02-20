@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
@@ -24,7 +25,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     GpsService mService;
     boolean mBound = false;
     private static final String TAG = "MAIN";
+    ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText namereg = (EditText)findViewById(R.id.nameRegister);
         final EditText mailreg = (EditText)findViewById(R.id.emailRegister);
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        final ProgressDialog progress = new ProgressDialog(this);
+        progress = new ProgressDialog(this);
 
 
 
@@ -61,7 +67,13 @@ public class MainActivity extends AppCompatActivity {
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 if (snamereg.trim().length() > 0 && isEmailValid(smailreg)) {
                     breg.setEnabled(false);
-                    progress.show();
+                    SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+                    HashMap<String, String> data = new HashMap<String, String>();
+                    data.put("name", snamereg);
+                    data.put("email", smailreg);
+                    data.put("imei", prefs.getString(Constants.IMEI_KEY, ""));
+                    new LoginTask().execute(data);
+
                 } else if(!isEmailValid(smailreg)) {
                     Snackbar.make(view, "The mail hasn't a valid format", Snackbar.LENGTH_LONG)
                             .show();
@@ -203,6 +215,28 @@ public class MainActivity extends AppCompatActivity {
             return true;
         else
             return false;
+    }
+
+    private class LoginTask extends AsyncTask<HashMap<String, String>, Void, Boolean> {
+
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            progress.hide();
+        }
+
+
+        @Override
+        protected Boolean doInBackground(HashMap<String, String>... params) {
+            HttpConnection req = new HttpConnection();
+            JSONObject resp = req.makePostText(Constants.SERVER_URL + "api/users/", params[0]);
+            return true;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress.show();
+        }
     }
 
 
