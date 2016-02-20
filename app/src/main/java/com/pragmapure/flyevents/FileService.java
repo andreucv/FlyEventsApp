@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.pragmapure.flyevents.classes.Photo;
