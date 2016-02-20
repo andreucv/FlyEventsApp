@@ -1,5 +1,6 @@
 package com.pragmapure.flyevents;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,7 +51,6 @@ public class HttpConnection {
     public JSONObject makePostImage(HashMap<String, String> params, String fileUri){
         String charset = "UTF-8";
         File uploadFile1 = new File(fileUri);
-
         try {
             MultipartUtility multipart = new MultipartUtility(setUpConnection("POST"), charset);
             String[] keys = params.keySet().toArray(new String[0]);

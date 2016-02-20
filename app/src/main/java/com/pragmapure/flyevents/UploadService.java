@@ -6,14 +6,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.pragmapure.flyevents.classes.Photo;
 
+import org.json.JSONObject;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,7 +35,8 @@ public class UploadService extends Service {
         NetworkInfo wifiConnected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         if(wifiConnected.isConnected()){
-            uploadPhoto();
+            Log.d(TAG, "empezando servicio UPLOAD");
+            new UploadServerTask().execute();
         }
 
         return START_STICKY;
@@ -44,6 +50,7 @@ public class UploadService extends Service {
     public boolean uploadPhoto(){
         Log.d(TAG, "Uploading a photo");
         HashMap<String, String> params = null;
+        JSONObject response = null;
         // Search file in ORM
         List<Photo> listToUpload = Photo.find(Photo.class, "uploaded = ?", "false");
         if(!listToUpload.isEmpty()){
@@ -54,6 +61,7 @@ public class UploadService extends Service {
             params.put("event", photoToUpload.getIdEvent());
             HttpConnection httpConnection = new HttpConnection(Constants.UPLOAD_URL);
             httpConnection.makePostImage(params, photoToUpload.getFilename());
+            photoToUpload.markUploaded();
         }
 
         return true;
@@ -62,6 +70,17 @@ public class UploadService extends Service {
     public class LocalBinder extends Binder {
         public UploadService getService() {
             return UploadService.this;
+        }
+    }
+
+
+    private class UploadServerTask extends AsyncTask<Void, Void, JSONObject> {
+
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+            uploadPhoto();
+            return null;
         }
     }
 }
