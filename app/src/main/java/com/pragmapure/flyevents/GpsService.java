@@ -22,14 +22,17 @@ import android.util.Log;
 public class GpsService extends Service {
 
     private static final String TAG = "GpsServiceFlyEvents";
-    public GpsService() {
-    }
+    public GpsService() {}
 
     public final IBinder mBinder = new LocalBinder();
 
-
     LocationManager locationManager;
     LocationListener locationListener;
+
+    @Override
+    public void onCreate(){
+
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
