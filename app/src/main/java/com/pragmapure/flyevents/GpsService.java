@@ -36,6 +36,7 @@ public class GpsService extends Service {
                 SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
                 sharedPreferences.edit().putFloat(Constants.GPS_LAT_KEY, (float) location.getLatitude());
                 sharedPreferences.edit().putFloat(Constants.GPS_LONG_KEY, (float) location.getLongitude());
+                sharedPreferences.edit().apply();
             }
 
             @Override
@@ -70,5 +71,11 @@ public class GpsService extends Service {
 
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public class LocalBinder extends Binder {
+        public GpsService getService() {
+            return GpsService.this;
+        }
     }
 }
