@@ -32,7 +32,7 @@ public class GpsService extends Service {
     @Override
     public void onCreate(){
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        Log.d(TAG, "SERVICIO EN MARCHA");
+        Log.d(TAG, "onCreate in Service");
 
         locationListener = new LocationListener() {
             @Override
@@ -59,10 +59,14 @@ public class GpsService extends Service {
                 Log.d(TAG, "4");
             }
         };
+
+        Log.d(TAG, locationListener.toString());
+        Log.d(TAG, locationManager.toString());
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        Log.d(TAG, "onStartCommand");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -78,16 +82,19 @@ public class GpsService extends Service {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.minTime, Constants.minDistance, locationListener);
 
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, ""+location.getLatitude()).apply();
-        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, ""+location.getLongitude()).apply();
-
+        SharedPreferences sharedPreferences = null;
+        if(location != null) {
+            sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+            sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
+            sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
+        }
         Log.d(TAG, "" + sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
         return mBinder;
     }
 

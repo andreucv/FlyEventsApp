@@ -65,7 +65,7 @@ public class HttpConnection {
         return urlConnection;
     }
 
-    private JSONObject makePostImage(HashMap<String, String> params, String fileUri){
+    public JSONObject makePostImage(HashMap<String, String> params, String fileUri){
         String charset = "UTF-8";
         File uploadFile1 = new File(fileUri);
 
@@ -84,7 +84,7 @@ public class HttpConnection {
         }
     }
 
-    private JSONObject makePostText(HashMap<String, String> params){
+    public JSONObject makePostText(HashMap<String, String> params){
         String charset = "UTF-8";
         JSONObject response = null;
         try{
