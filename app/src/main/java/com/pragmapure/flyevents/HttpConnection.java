@@ -41,11 +41,13 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class HttpConnection {
 
-    public HttpConnection(){
+    String url;
 
+    public HttpConnection(String url){
+        this.url = url;
     }
 
-    private HttpURLConnection setUpConnection(String url, String method) {
+    private HttpURLConnection setUpConnection(String method) {
         HttpURLConnection urlConnection = null;
         URL urlObj;
 
@@ -63,12 +65,12 @@ public class HttpConnection {
         return urlConnection;
     }
 
-    private JSONObject makePostImage(String url, HashMap<String, String> params, String fileUri){
+    private JSONObject makePostImage(HashMap<String, String> params, String fileUri){
         String charset = "UTF-8";
         File uploadFile1 = new File(fileUri);
 
         try {
-            MultipartUtility multipart = new MultipartUtility(setUpConnection(Constants.SERVER_URL, "POST"), charset);
+            MultipartUtility multipart = new MultipartUtility(setUpConnection("POST"), charset);
             String[] keys = params.keySet().toArray(new String[0]);
             for(String n: keys) {
                 multipart.addFormField(n, params.get(n));
@@ -82,11 +84,11 @@ public class HttpConnection {
         }
     }
 
-    public JSONObject makePostText(String url, HashMap<String, String> params){
+    private JSONObject makePostText(HashMap<String, String> params){
         String charset = "UTF-8";
         JSONObject response = null;
         try{
-            MultipartUtility multipart = new MultipartUtility(setUpConnection(url, "POST"), charset);
+            MultipartUtility multipart = new MultipartUtility(setUpConnection("POST"), charset);
             String[] keys = params.keySet().toArray(new String[0]);
             for (String n : keys) {
                 multipart.addFormField(n, params.get(n));
