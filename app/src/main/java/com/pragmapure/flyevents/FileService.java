@@ -37,7 +37,7 @@ public class FileService extends Service {
         File pathCamera = new File(path.getAbsolutePath()+"/Camera/");
 
         String[] photosPath = pathCamera.list();
-        Log.d(TAG, photosPath.toString());
+
 
         if(eventId != null && dateOn != null && dateOff != null){
             // Then we're going to schedule an upload
@@ -52,7 +52,7 @@ public class FileService extends Service {
                         List<Photo> result = Photo.find(Photo.class, "filename = ?", pathCamera+"/"+photoPath);
                         if(result.isEmpty()){
                             Log.d(TAG, "We have saved the foto");
-                            Photo photo = new Photo(eventId, pathCamera+"/"+photoPath);
+                            Photo photo = new Photo(pathCamera+"/"+photoPath, eventId);
                             photo.save();
                         }
                     }

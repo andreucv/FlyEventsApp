@@ -62,7 +62,7 @@ public class UploadService extends Service {
         HashMap<String, String> params = null;
         JSONObject response = null;
         // Search file in ORM
-        List<Photo> listToUpload = Photo.find(Photo.class, "uploaded = ?", "false");
+        List<Photo> listToUpload = Photo.find(Photo.class, "uploaded = ?", "0");
         if(!listToUpload.isEmpty()){
             Log.d(TAG, "Uploading a photo");
             Photo photoToUpload = listToUpload.get(0);
@@ -87,8 +87,19 @@ public class UploadService extends Service {
     private Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
-            uploadPhoto();
+            new UploadAsyncTask().execute();
             handler.postDelayed(runnableCode, Constants.minTime);
         }
     };
+
+
+    private class UploadAsyncTask extends AsyncTask<Void, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            uploadPhoto();
+            return null;
+        }
+    }
 }
