@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 if (snamereg.trim().length() > 0 && isEmailValid(smailreg)) {
                     breg.setEnabled(false);
                     progress.show();
-
                 } else if(!isEmailValid(smailreg)) {
                     Snackbar.make(view, "The mail hasn't a valid format", Snackbar.LENGTH_LONG)
                             .show();
@@ -129,8 +128,7 @@ public class MainActivity extends AppCompatActivity {
     private void initAll() {
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-        prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId());
-        prefs.edit().apply();
+        prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId()).apply();
 
         Intent intent = new Intent(this, GpsService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);

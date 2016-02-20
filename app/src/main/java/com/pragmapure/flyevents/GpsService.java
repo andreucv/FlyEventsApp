@@ -36,26 +36,26 @@ public class GpsService extends Service {
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                Log.d(TAG, ""+location.getLatitude());
+                Log.d(TAG, "" + location.getLatitude());
                 SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-                sharedPreferences.edit().putFloat(Constants.GPS_LAT_KEY, (float) location.getLatitude());
-                sharedPreferences.edit().putFloat(Constants.GPS_LONG_KEY, (float) location.getLongitude());
-                sharedPreferences.edit().apply();
+                sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
+                sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
+                Log.d(TAG, "1");
             }
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
+                Log.d(TAG, "2");
             }
 
             @Override
             public void onProviderEnabled(String provider) {
-
+                Log.d(TAG, "3");
             }
 
             @Override
             public void onProviderDisabled(String provider) {
-
+                Log.d(TAG, "4");
             }
         };
 
@@ -71,7 +71,15 @@ public class GpsService extends Service {
             // TODO THE HANDLER
         }
         // 0 time in milliseconds between changes and 0 distance in meters between change
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.minTime, Constants.minDistance, locationListener);
+
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, ""+location.getLatitude()).apply();
+        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, ""+location.getLongitude()).apply();
+
+        Log.d(TAG, ""+sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
+
 
         return mBinder;
     }

@@ -1,5 +1,7 @@
 package com.pragmapure.flyevents;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,6 +22,13 @@ public class webActivity extends AppCompatActivity {
         myWebView.setWebViewClient(new WebViewClient());
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+
+        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        String imei = prefs.getString(Constants.IMEI_KEY, null);
+        Float lat = prefs.getFloat(Constants.GPS_LAT_KEY, 0.0f);
+        Float longi = prefs.getFloat(Constants.GPS_LONG_KEY, 0.0f);
+
+
         myWebView.loadUrl(Constants.SERVER_URL);
     }
 
