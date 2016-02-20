@@ -36,6 +36,7 @@ public class GpsService extends Service {
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                Log.d(TAG, ""+location.getLatitude());
                 SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
                 sharedPreferences.edit().putFloat(Constants.GPS_LAT_KEY, (float) location.getLatitude());
                 sharedPreferences.edit().putFloat(Constants.GPS_LONG_KEY, (float) location.getLongitude());

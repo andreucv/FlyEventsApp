@@ -16,11 +16,11 @@ public final class Constants {
     public static final String GPS_LAT_KEY = "gpslat";
     public static final String GPS_LONG_KEY = "gpslong";
 
-
+    public static final int PERMISSIONS_QUERY = 5;
 
 
     /*SERVER*/
 
-    public static final String SERVER_URL = "http://37.139.6.22";
+    public static final String SERVER_URL = "http://37.139.6.22/";
 
 }

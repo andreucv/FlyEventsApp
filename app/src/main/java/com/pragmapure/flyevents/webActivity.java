@@ -20,7 +20,7 @@ public class webActivity extends AppCompatActivity {
         myWebView.setWebViewClient(new WebViewClient());
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        myWebView.loadUrl("https://in.mundiaguabalear.com");
+        myWebView.loadUrl(Constants.SERVER_URL);
     }
 
 }

@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,11 +24,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
 
     GpsService mService;
     boolean mBound = false;
+    private static final String TAG = "MAIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,50 +39,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_PHONE_STATE)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_PHONE_STATE},
-                        0);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        }
-
-
-
-        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-        prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId());
-        prefs.edit().apply();
-        Boolean isRegistered = prefs.getBoolean(Constants.REGISTERED_KEY, false);
-
-        if (isRegistered) {
-            Intent i = new Intent(this, webActivity.class);
-            startActivity(i);
-            return;
-        }
-
-
-
 
         final Button breg = (Button) findViewById(R.id.buttonRegister);
         final EditText namereg = (EditText)findViewById(R.id.nameRegister);
@@ -139,10 +99,68 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        ArrayList<String> perms = new ArrayList<>();
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            perms.add(Manifest.permission.READ_PHONE_STATE);
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            perms.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+       if (perms.size()>0) {
+           ActivityCompat.requestPermissions(this, perms.toArray(new String[0]), Constants.PERMISSIONS_QUERY);
+       } else {
+            initAll();
+       }
+
+    }
+
+    private void initAll() {
+        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId());
+        prefs.edit().apply();
+
+        Boolean isRegistered = prefs.getBoolean(Constants.REGISTERED_KEY, false);
+
+        if (isRegistered) {
+            Intent i = new Intent(this, webActivity.class);
+            startActivity(i);
+            return;
+        }
+
         // Bind to LocalService
         Intent intent = new Intent(this, GpsService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        boolean allGrant = true;
+        switch (requestCode) {
+            case Constants.PERMISSIONS_QUERY: {
+                // If request is cancelled, the result arrays are empty.
+                for (int i: grantResults) {
+                    allGrant = allGrant && (i == PackageManager.PERMISSION_GRANTED);
+                }
+            }
+        }
+
+        if (allGrant) {
+            initAll();
+        } else {
+            //TODO: REQUEST PERMISSIONS ONE MORE TIME.
+        }
+    }
+
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -160,4 +178,6 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
+
+
 }
