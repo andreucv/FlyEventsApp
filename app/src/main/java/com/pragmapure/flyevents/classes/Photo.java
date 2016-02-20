@@ -8,7 +8,7 @@ import com.orm.SugarRecord;
 public class Photo extends SugarRecord {
 
     String filename;
-    String id;
+    String idEvent;
     Boolean uploaded;
 
     public Photo() {
@@ -16,13 +16,13 @@ public class Photo extends SugarRecord {
 
     public Photo(String filename, String id, Boolean uploaded) {
         this.filename = filename;
-        this.id = id;
+        this.idEvent = id;
         this.uploaded = uploaded;
     }
 
     public Photo(String filename, String id) {
         this.filename = filename;
-        this.id = id;
+        this.idEvent = id;
         this.uploaded = false;
     }
 
