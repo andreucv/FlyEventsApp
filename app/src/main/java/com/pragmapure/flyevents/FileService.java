@@ -15,6 +15,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class FileService extends Service {
     public static final String TAG = "FileService";
@@ -29,27 +30,34 @@ public class FileService extends Service {
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         String eventId = sharedPreferences.getString(Constants.EVENT_KEY, null);
-        String dateOn = sharedPreferences.getString(Constants.DATEON_KEY, null);
-        String dateOff = sharedPreferences.getString(Constants.DATEOFF_KEY, null);
+        Date dateOn = parseString(sharedPreferences.getString(Constants.DATEON_KEY, null));
+        Date dateOff = parseString(sharedPreferences.getString(Constants.DATEOFF_KEY, null));
 
-        File path = Environment.getExternalStorageDirectory();
-        String[] photos = path.list();
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File pathCamera = new File(path.getAbsolutePath()+"/Camera/");
+
+        String[] photosPath = pathCamera.list();
+        Log.d(TAG, photosPath.toString());
+
         if(eventId != null && dateOn != null && dateOff != null){
             // Then we're going to schedule an upload
-            File photoToSchedule = new File(photos[0]);
-            Long datePictureLong = photoToSchedule.lastModified();
-            Date datePictureDate = new Date(datePictureLong);
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SERVER);
-            String dateText = dateFormat.format(datePictureDate);
-            Date datePicture = null;
-            try {
-                datePicture = dateFormat.parse(dateText);
-            } catch (ParseException e) {
-                e.printStackTrace();
+            for(String photoPath: photosPath){
+                Log.d(TAG, "PhotoPath of foto processed now: " + photoPath);
+                File photoToSchedule = new File(photoPath);
+                Date pictureDate = parseLong(photoToSchedule.lastModified());
+                Log.d(TAG, "Date of the picture: "+pictureDate.toString());
+                if(!pictureDate.before(dateOn) && !pictureDate.after(dateOff)){
+                    // Add to the Photos Records
+                    List<Photo> result = Photo.find(Photo.class, "filename = ?", photoPath);
+                    if(result.isEmpty()){
+                        Log.d(TAG, "We have saved the foto");
+                        Photo photo = new Photo(eventId, photoPath);
+                        Photo.save(photo);
+                    }
+                }
             }
-            Log.d(TAG, datePicture.toString());
         }
-        return 0;
+        return START_STICKY;
     }
 
     @Override
@@ -62,5 +70,28 @@ public class FileService extends Service {
         public FileService getService() {
             return FileService.this;
         }
+    }
+
+    public Date parseLong(long date){
+        Date datePicture = new Date(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SERVER);
+        String dateText = dateFormat.format(datePicture);
+        try {
+            datePicture = dateFormat.parse(dateText);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return datePicture;
+    }
+
+    public Date parseString(String date){
+        Date datePicture = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SERVER);
+        try {
+            datePicture = dateFormat.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return datePicture;
     }
 }
