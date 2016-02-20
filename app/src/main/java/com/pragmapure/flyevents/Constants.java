@@ -19,6 +19,9 @@ public final class Constants {
     public static final int PERMISSIONS_QUERY = 5;
 
 
+
+    public static final long minTime = 0;
+    public static final float minDistance = 0;
     /*SERVER*/
 
     public static final String SERVER_URL = "http://37.139.6.22/";
