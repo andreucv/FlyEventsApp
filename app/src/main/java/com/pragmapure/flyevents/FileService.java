@@ -52,7 +52,7 @@ public class FileService extends Service {
                     if(result.isEmpty()){
                         Log.d(TAG, "We have saved the foto");
                         Photo photo = new Photo(eventId, photoPath);
-                        Photo.save(photo);
+                        photo.save();
                     }
                 }
             }
@@ -73,18 +73,11 @@ public class FileService extends Service {
     }
 
     public Date parseLong(long date){
-        Date datePicture = new Date(date);
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SERVER);
-        String dateText = dateFormat.format(datePicture);
-        try {
-            datePicture = dateFormat.parse(dateText);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return datePicture;
+        return new Date(date);
     }
 
     public Date parseString(String date){
+        if (date == null) return null;
         Date datePicture = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SERVER);
         try {
