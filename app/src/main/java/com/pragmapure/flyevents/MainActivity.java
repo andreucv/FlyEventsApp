@@ -37,8 +37,12 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-    GpsService mService;
-    boolean mBound = false;
+    GpsService mServiceGps;
+    boolean mBoundGps = false;
+
+    UploadService mServiceUpload;
+    boolean mBoundUpload = false;
+
     private static final String TAG = "MAIN";
     ProgressDialog progress;
     SharedPreferences prefs;
@@ -144,8 +148,11 @@ public class MainActivity extends AppCompatActivity {
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         prefs.edit().putString(Constants.IMEI_KEY, telephonyManager.getDeviceId()).apply();
 
-        Intent intent = new Intent(this, GpsService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Intent intentGps = new Intent(this, GpsService.class);
+        bindService(intentGps, mConnectionGps, Context.BIND_AUTO_CREATE);
+
+        Intent intentUpload = new Intent(this, UploadService.class);
+        bindService(intentUpload, mConnectionUpload, Context.BIND_AUTO_CREATE);
 
         Boolean isRegistered = prefs.getBoolean(Constants.REGISTERED_KEY, false);
 
@@ -180,21 +187,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnectionGps = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            mService = ((GpsService.LocalBinder) service).getService();
+            mServiceGps = ((GpsService.LocalBinder) service).getService();
             Intent intent = new Intent(getApplicationContext(), GpsService.class);
-            mService.startService(intent);
-            mBound = true;
+            mServiceGps.startService(intent);
+            mBoundGps = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            mBoundGps = false;
+        }
+    };
+
+    private ServiceConnection mConnectionUpload = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            mServiceUpload = ((UploadService.LocalBinder) service).getService();
+            Intent intent = new Intent(getApplicationContext(), UploadService.class);
+            mServiceUpload.startService(intent);
+            mBoundUpload = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBoundUpload = false;
         }
     };
 

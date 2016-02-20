@@ -25,7 +25,7 @@ public class UploadService extends Service {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifiConnected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        while(wifiConnected.isConnected()){
+        if(wifiConnected.isConnected()){
             uploadPhoto();
         }
 
@@ -37,8 +37,11 @@ public class UploadService extends Service {
         return mBinder;
     }
 
-    public boolean uploadPhoto(){
+    public boolean uploadPhoto(HashMap<String, String> params){
         Log.d(TAG, "Uploading a photo");
+
+        HttpConnection httpConnection = new HttpConnection(Constants.UPLOAD_URL);
+        httpConnection.makePostImage(params, )
         return true;
     }
 
