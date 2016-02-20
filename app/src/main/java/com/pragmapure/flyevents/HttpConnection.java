@@ -75,7 +75,7 @@ public class HttpConnection {
             for(String n: keys) {
                 multipart.addFormField(n, params.get(n));
             }
-            multipart.addFilePart("photo", uploadFile1);
+            multipart.addFilePart("image", uploadFile1);
             return new JSONObject(multipart.finish());
 
         } catch (Exception e) {

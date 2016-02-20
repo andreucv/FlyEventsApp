@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBoundGps = false;
+            mServiceGps.stopSelf();
         }
     };
 
@@ -224,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBoundUpload = false;
+            mServiceUpload.stopSelf();
         }
     };
 

@@ -3,6 +3,7 @@ package com.pragmapure.flyevents;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -11,7 +12,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.pragmapure.flyevents.classes.Photo;
+
 import java.util.HashMap;
+import java.util.List;
 
 public class UploadService extends Service {
 
@@ -37,11 +41,21 @@ public class UploadService extends Service {
         return mBinder;
     }
 
-    public boolean uploadPhoto(HashMap<String, String> params){
+    public boolean uploadPhoto(){
         Log.d(TAG, "Uploading a photo");
+        HashMap<String, String> params = null;
+        // Search file in ORM
+        List<Photo> listToUpload = Photo.find(Photo.class, "uploaded = ?", "false");
+        if(!listToUpload.isEmpty()){
+            Photo photoToUpload = listToUpload.get(0);
+            SharedPreferences sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+            params = new HashMap<>();
+            params.put("imei", sharedPreferences.getString(Constants.IMEI_KEY, ""));
+            params.put("event", photoToUpload.getIdEvent());
+            HttpConnection httpConnection = new HttpConnection(Constants.UPLOAD_URL);
+            httpConnection.makePostImage(params, photoToUpload.getFilename());
+        }
 
-        HttpConnection httpConnection = new HttpConnection(Constants.UPLOAD_URL);
-        httpConnection.makePostImage(params, )
         return true;
     }
 

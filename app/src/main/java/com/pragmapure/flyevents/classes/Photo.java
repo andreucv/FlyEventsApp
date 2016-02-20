@@ -26,6 +26,14 @@ public class Photo extends SugarRecord {
         this.uploaded = false;
     }
 
+    public String getIdEvent(){
+        return idEvent;
+    }
+
+    public String getFilename(){
+        return filename;
+    }
+
     public void markUploaded() {
         this.uploaded = true;
         this.save();
