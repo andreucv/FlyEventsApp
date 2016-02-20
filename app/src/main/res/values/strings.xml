@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">FlyEvents</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_web">webActivity</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="enter">Enter</string>
+    <string name="registerstr">Please register</string>
 </resources>
