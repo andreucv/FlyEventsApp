@@ -16,6 +16,9 @@ public final class Constants {
     public static final String GPS_LAT_KEY = "gpslat";
     public static final String GPS_LONG_KEY = "gpslong";
     public static final String EVENT_KEY = "eventk";
+    public static final String DATEON_KEY = "dateon";
+    public static final String DATEOFF_KEY = "dateoff";
+    public static final String DATE_FORMAT_SERVER = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     public static final int PERMISSIONS_QUERY = 5;
 
