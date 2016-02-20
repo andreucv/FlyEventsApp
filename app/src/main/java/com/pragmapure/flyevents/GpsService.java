@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -38,6 +39,18 @@ public class GpsService extends Service {
     SharedPreferences sharedPreferences;
     Context c;
 
+    Handler handler = new Handler();
+
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            new LocationServerTask().execute();
+            // Repeat this the same runnable code block again another 2 seconds
+            handler.postDelayed(runnableCode, Constants.TIME_GPS_SEARCH);
+        }
+    };
+
     @Override
     public void onCreate(){
         c = this;
@@ -51,7 +64,7 @@ public class GpsService extends Service {
                 Log.d(TAG, "" + location.getLatitude());
                 sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
                 sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
-                new LocationServerTask().execute(location);
+
                 Log.d(TAG, "1");
             }
 
@@ -73,6 +86,7 @@ public class GpsService extends Service {
 
         Log.d(TAG, locationListener.toString());
         Log.d(TAG, locationManager.toString());
+        handler.post(runnableCode);
     }
 
     @Override
@@ -97,7 +111,6 @@ public class GpsService extends Service {
             sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
             sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
             sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
-            new LocationServerTask().execute(location);
         }
         Log.d(TAG, "" + sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
         return START_STICKY;
@@ -115,27 +128,46 @@ public class GpsService extends Service {
         }
     }
 
-    private JSONObject uploadLocation(Location l) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnableCode);
+    }
+
+    private JSONObject uploadLocation() {
         HashMap<String, String> data = new HashMap<>();
         data.put("imei", sharedPreferences.getString(Constants.IMEI_KEY, ""));
-        data.put("latitude", ""+l.getLatitude());
-        data.put("longitude", ""+l.getLongitude());
+        data.put("latitude", ""+sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
+        data.put("longitude", ""+sharedPreferences.getString(Constants.GPS_LONG_KEY, ""));
         HttpConnection h = new HttpConnection(Constants.SEARCH_EVENTS);
         return h.makePostText(data);
     }
 
-    private class LocationServerTask extends AsyncTask<Location, Void, JSONObject> {
+    private class LocationServerTask extends AsyncTask<Void, Void, JSONObject> {
 
 
         @Override
-        protected JSONObject doInBackground(Location... params) {
-            boolean hasEvent = false;
-            int idevent = 1;
+        protected JSONObject doInBackground(Void... params) {
+            HashMap<String, String> data = new HashMap<>();
+            data.put("imei", sharedPreferences.getString(Constants.IMEI_KEY, ""));
+            HttpConnection h = new HttpConnection(Constants.ACTUAL_EVENT);
+            JSONObject resp =  h.makePostText(data);
+
+            boolean hasEvent = !resp.isNull("event");
+
             if (hasEvent) {
-                sharedPreferences.edit().putString(Constants.EVENT_KEY, ""+idevent).apply();
+                JSONObject ev = null;
+                try {
+                ev = resp.getJSONObject("event");
+                sharedPreferences.edit().putString(Constants.EVENT_KEY, ""+ev.getInt("id")).apply();
+                sharedPreferences.edit().putString(Constants.DATEON_KEY, ev.getString("time_1")).apply();
+                sharedPreferences.edit().putString(Constants.DATEOFF_KEY, ev.getString("time_2")).apply();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 return null;
             } else {
-                return uploadLocation(params[0]);
+                return uploadLocation();
             }
         }
 
@@ -145,7 +177,7 @@ public class GpsService extends Service {
                 sharedPreferences.edit().remove(Constants.EVENT_KEY).apply();
                 try {
                     JSONArray events = ev.getJSONArray("events");
-                    if (events.length()>0 && !sharedPreferences.getBoolean(Constants.EVENTS_FOUND_KEY, false)) {
+                    if (events.length()>0 && !sharedPreferences.getBoolean(Constants.EVENTS_NOTIFICATION, false)) {
                         sharedPreferences.edit().putBoolean(Constants.EVENTS_FOUND_KEY, true).apply();
                         sharedPreferences.edit().putBoolean(Constants.EVENTS_NOTIFICATION, true).apply();
                         NotificationCompat.Builder mBuilder =
@@ -163,6 +195,7 @@ public class GpsService extends Service {
                                         PendingIntent.FLAG_UPDATE_CURRENT
                                 );
                         mBuilder.setContentIntent(resultPendingIntent);
+                        mBuilder.setAutoCancel(true);
                         NotificationManager mNotificationManager =
                                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         mNotificationManager.notify(1, mBuilder.build());

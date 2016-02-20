@@ -28,10 +28,12 @@ public final class Constants {
 
     public static final long minTime = 5000;
     public static final float minDistance = 0;
+    public static final int TIME_GPS_SEARCH = 10000;
     /*SERVER*/
 
     public static final String SERVER_URL = "http://37.139.6.22/";
     public static final String CREATE_USER = SERVER_URL + "api/users/";
+    public static final String ACTUAL_EVENT = SERVER_URL + "api/users/actual_event/";
     public static final String SEARCH_EVENTS = SERVER_URL + "api/events/search/";
     public static final String UPLOAD_URL = SERVER_URL + "api/photos/";
     public static final String WEB_EVENTS_URL = SERVER_URL + "events/";
