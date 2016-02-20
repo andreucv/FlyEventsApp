@@ -29,9 +29,9 @@ public class webActivity extends AppCompatActivity {
         String url = Constants.SERVER_URL;
         if (prefs.getBoolean(Constants.EVENTS_NOTIFICATION, false)) {
             prefs.edit().putBoolean(Constants.EVENTS_NOTIFICATION, false).apply();
-            url = Constants.WEB_EVENTS_URL+"?imei="+imei+"&latitude="+lat+"&longitude="+longi;
+            url = Constants.WEB_EVENTS_URL;
         }
-        myWebView.loadUrl(url);
+        myWebView.loadUrl(url+"?imei="+imei+"&latitude="+lat+"&longitude="+longi);
     }
 
 }
