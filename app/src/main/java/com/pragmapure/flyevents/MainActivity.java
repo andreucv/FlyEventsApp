@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         if (isRegistered) {
             Intent i = new Intent(this, webActivity.class);
             startActivity(i);
+
             return;
         }
 

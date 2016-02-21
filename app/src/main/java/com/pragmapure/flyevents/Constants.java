@@ -32,6 +32,7 @@ public final class Constants {
     /*SERVER*/
 
     public static final String SERVER_URL = "http://37.139.6.22/";
+    public static final String HOME_URL = SERVER_URL + "home/";
     public static final String CREATE_USER = SERVER_URL + "api/users/";
     public static final String ACTUAL_EVENT = SERVER_URL + "api/users/actual_event/";
     public static final String SEARCH_EVENTS = SERVER_URL + "api/events/search/";

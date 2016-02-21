@@ -96,7 +96,7 @@ public class FileService extends Service {
                             List<Photo> result = Photo.find(Photo.class, "filename = ?", pathCamera+"/"+photoPath);
                             if(result.isEmpty()){
                                 Log.d(TAG, "We have saved the foto");
-                                Photo photo = new Photo(eventId, pathCamera+"/"+photoPath);
+                                Photo photo = new Photo(pathCamera+"/"+photoPath, eventId);
                                 photo.save();
                             }
                         }
