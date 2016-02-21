@@ -9,9 +9,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.pragmapure.flyevents.classes.Photo;
-
-import android.os.Handler;
 
 public class webActivity extends AppCompatActivity {
 
