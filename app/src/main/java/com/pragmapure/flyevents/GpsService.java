@@ -64,10 +64,10 @@ public class GpsService extends Service  implements GoogleApiClient.ConnectionCa
     @Override
     public void onCreate(){
         c = this;
+        sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         Log.d(TAG, "onCreate in Service");
         buildGoogleApiClient();
         createLocationRequest();
-        sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         handler.post(runnableCode);
     }
 
