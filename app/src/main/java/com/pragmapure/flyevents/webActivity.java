@@ -10,7 +10,15 @@ import android.webkit.WebViewClient;
 
 import com.pragmapure.flyevents.classes.Photo;
 
+import android.os.Handler;
+
 public class webActivity extends AppCompatActivity {
+
+    String lat = null;
+    String longi = null;
+
+    SharedPreferences prefs;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,10 +29,10 @@ public class webActivity extends AppCompatActivity {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         String imei = prefs.getString(Constants.IMEI_KEY, null);
-        String lat = prefs.getString(Constants.GPS_LAT_KEY, null);
-        String longi = prefs.getString(Constants.GPS_LONG_KEY, null);
+        lat = prefs.getString(Constants.GPS_LAT_KEY, null);
+        longi = prefs.getString(Constants.GPS_LONG_KEY, null);
 
         String url = Constants.SERVER_URL;
         if (prefs.getBoolean(Constants.EVENTS_NOTIFICATION, false)) {
@@ -32,6 +40,20 @@ public class webActivity extends AppCompatActivity {
             url = Constants.WEB_EVENTS_URL+"?imei="+imei+"&latitude="+lat+"&longitude="+longi;
         }
         myWebView.loadUrl(url);
+
+        handler = new Handler();
+        handler.post(runnableCode);
     }
+
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            lat = prefs.getString(Constants.GPS_LAT_KEY, null);
+            longi = prefs.getString(Constants.GPS_LONG_KEY, null);
+            // Repeat this the same runnable code block again another 2 seconds
+            handler.postDelayed(runnableCode, Constants.TIME_GPS_SEARCH);
+        }
+    };
 
 }
