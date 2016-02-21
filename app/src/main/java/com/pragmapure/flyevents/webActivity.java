@@ -47,28 +47,6 @@ public class webActivity extends AppCompatActivity {
         myWebView.loadUrl(url+"?imei="+imei+"&latitude="+lat+"&longitude="+longi);
     }
 
-    boolean doubleBackToExitPressedOnce = false;
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
-            }
-        }, 2000);
-    }
-
     private Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
