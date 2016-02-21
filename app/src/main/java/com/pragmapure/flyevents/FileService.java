@@ -81,7 +81,6 @@ public class FileService extends Service {
             File pathCamera = new File(path.getAbsolutePath()+"/Camera/");
 
             String[] photosPath = pathCamera.list();
-            Log.d(TAG, photosPath.toString());
 
             if(eventId != null && dateOn != null && dateOff != null){
                 // Then we're going to schedule an upload

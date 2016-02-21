@@ -1,6 +1,5 @@
 package com.pragmapure.flyevents;
 
-import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -8,18 +7,19 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,19 +27,21 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class GpsService extends Service {
+public class GpsService extends Service  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener
+{
 
     private static final String TAG = "GpsServiceFlyEvents";
-    public GpsService() {}
-
+    GoogleApiClient mGoogleApiClient;
+    Location mLastLocation;
+    LocationRequest mLocationRequest;
     public final IBinder mBinder = new LocalBinder();
-
-    LocationManager locationManager;
-    LocationListener locationListener;
     SharedPreferences sharedPreferences;
     Context c;
-
     Handler handler = new Handler();
+
+    public GpsService() {
+
+    }
 
     private Runnable runnableCode = new Runnable() {
         @Override
@@ -51,66 +53,29 @@ public class GpsService extends Service {
         }
     };
 
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
     @Override
     public void onCreate(){
         c = this;
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         Log.d(TAG, "onCreate in Service");
+        buildGoogleApiClient();
+        createLocationRequest();
         sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.d(TAG, "" + location.getLatitude());
-                sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
-                sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
-
-                Log.d(TAG, "1");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                Log.d(TAG, "2");
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Log.d(TAG, "3");
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Log.d(TAG, "4");
-            }
-        };
-
-        Log.d(TAG, locationListener.toString());
-        Log.d(TAG, locationManager.toString());
         handler.post(runnableCode);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         Log.d(TAG, "onStartCommand");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Log.e(TAG, "Error in checkSelfPermission");
-            // TODO THE HANDLER
-        }
-        // 0 time in milliseconds between changes and 0 distance in meters between change
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.minTime, Constants.minDistance, locationListener);
-
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if(location != null) {
-            sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-            sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + location.getLatitude()).apply();
-            sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + location.getLongitude()).apply();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
         }
         Log.d(TAG, "" + sharedPreferences.getString(Constants.GPS_LAT_KEY, ""));
         return START_STICKY;
@@ -122,15 +87,59 @@ public class GpsService extends Service {
         return mBinder;
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + mLastLocation.getLatitude()).apply();
+        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + mLastLocation.getLongitude()).apply();
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + mLastLocation.getLatitude()).apply();
+        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + mLastLocation.getLongitude()).apply();
+    }
+
+
     public class LocalBinder extends Binder {
         public GpsService getService() {
             return GpsService.this;
         }
     }
 
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(Constants.TIME_LOCATION);
+        mLocationRequest.setFastestInterval(Constants.TIME_LOCATION_MIN);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
         handler.removeCallbacks(runnableCode);
     }
 

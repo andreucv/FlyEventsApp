@@ -23,12 +23,14 @@ public final class Constants {
     public static final String DATE_FORMAT_SERVER = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     public static final int PERMISSIONS_QUERY = 5;
-
-
+    public static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
 
     public static final long minTime = 5000;
     public static final float minDistance = 0;
     public static final int TIME_GPS_SEARCH = 10000;
+    public static final int TIME_LOCATION = 20000;
+    public static final int TIME_LOCATION_MIN = 5000;
+
     /*SERVER*/
 
     public static final String SERVER_URL = "http://37.139.6.22/";
