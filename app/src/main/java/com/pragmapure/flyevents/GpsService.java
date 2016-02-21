@@ -90,9 +90,12 @@ public class GpsService extends Service  implements GoogleApiClient.ConnectionCa
     @Override
     public void onConnected(Bundle bundle) {
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + mLastLocation.getLatitude()).apply();
-        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + mLastLocation.getLongitude()).apply();
-
+        if (mLastLocation != null) {
+            sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + mLastLocation.getLatitude()).apply();
+            sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + mLastLocation.getLongitude()).apply();
+        } else {
+            Log.d(TAG, "SIN UBICACION");
+        }
     }
 
     @Override
@@ -108,9 +111,12 @@ public class GpsService extends Service  implements GoogleApiClient.ConnectionCa
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        sharedPreferences = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
-        sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + mLastLocation.getLatitude()).apply();
-        sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + mLastLocation.getLongitude()).apply();
+        if (mLastLocation != null) {
+            sharedPreferences.edit().putString(Constants.GPS_LAT_KEY, "" + mLastLocation.getLatitude()).apply();
+            sharedPreferences.edit().putString(Constants.GPS_LONG_KEY, "" + mLastLocation.getLongitude()).apply();
+        } else {
+            Log.d(TAG, "SIN UBICACION2");
+        }
     }
 
 

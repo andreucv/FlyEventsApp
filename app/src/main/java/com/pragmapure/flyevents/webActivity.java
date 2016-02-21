@@ -27,7 +27,7 @@ public class webActivity extends AppCompatActivity {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         String imei = prefs.getString(Constants.IMEI_KEY, null);
         lat = prefs.getString(Constants.GPS_LAT_KEY, null);
         longi = prefs.getString(Constants.GPS_LONG_KEY, null);
