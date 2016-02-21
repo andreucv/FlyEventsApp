@@ -8,11 +8,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import com.pragmapure.flyevents.classes.Photo;
 
+import android.os.Handler;
+
 public class webActivity extends AppCompatActivity {
+
+    String lat = null;
+    String longi = null;
+
+    SharedPreferences prefs;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +32,18 @@ public class webActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences(Constants.SP_FE, Context.MODE_PRIVATE);
         String imei = prefs.getString(Constants.IMEI_KEY, null);
-        String lat = prefs.getString(Constants.GPS_LAT_KEY, null);
-        String longi = prefs.getString(Constants.GPS_LONG_KEY, null);
+        lat = prefs.getString(Constants.GPS_LAT_KEY, null);
+        longi = prefs.getString(Constants.GPS_LONG_KEY, null);
 
         String url = Constants.HOME_URL;
         if (prefs.getBoolean(Constants.EVENTS_NOTIFICATION, false)) {
             prefs.edit().putBoolean(Constants.EVENTS_NOTIFICATION, false).apply();
             url = Constants.WEB_EVENTS_URL;
         }
+        myWebView.loadUrl(url);
+
+        handler = new Handler();
+        handler.post(runnableCode);
         myWebView.loadUrl(url+"?imei="+imei+"&latitude="+lat+"&longitude="+longi);
     }
 
@@ -57,5 +68,16 @@ public class webActivity extends AppCompatActivity {
             }
         }, 2000);
     }
+
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            lat = prefs.getString(Constants.GPS_LAT_KEY, null);
+            longi = prefs.getString(Constants.GPS_LONG_KEY, null);
+            // Repeat this the same runnable code block again another 2 seconds
+            handler.postDelayed(runnableCode, Constants.TIME_GPS_SEARCH);
+        }
+    };
 
 }
